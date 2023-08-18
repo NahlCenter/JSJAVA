@@ -26,8 +26,6 @@ let i = 0;
 document.getElementById('root').innerHTML = categories
   .map((item) => {
     var { image, title, price } = item;
-    total = total + price;
-    document.getElementById('total').innerHTML = '$ ' + total + '.00';
     return `
         <div class='box'>
             <div class="img-box">
@@ -45,7 +43,12 @@ document.getElementById('root').innerHTML = categories
 
 var cart = [];
 function addtocart(a) {
-  cart.push({ ...categories[a] });
+  const existingItem = cart.find((item) => item.id === categories[a].id);
+  if (existingItem) {
+    existingItem.quantity++;
+  } else {
+    cart.push({ ...categories[a], quantity: 1 });
+  }
   displayCart();
 }
 function delElement(a) {
@@ -59,21 +62,47 @@ function displayCart() {
   document.getElementById('count').innerHTML = cart.length;
   if (cart.length == 0) {
     document.getElementById('cartItem').innerHTML = 'Your cart is empty';
-    document.getElementById('total').innerHTML = '$ ' + 0 + '.00';
+    document.getElementById('total').innerHTML = 'MAD ' + 0 + '.00';
   } else {
     document.getElementById('cartItem').innerHTML = cart
       .map((item) => {
-        var { image, title, price } = item;
+        var { image, title, price, quantity } = item;
+        total += price * quantity;
         return `
             <div class='cart-item'>
                 <div class='row-img'>
                     <img class='rowimg' src=${image}>
                 </div>
                 <p style='font-size:12px;'>${title}</p>
-                <h2 style='font-size: 15px;'>$ ${price}.00</h2>
+                <h2 style='font-size: 15px;'>MAD ${price}.00</h2>
+                <div>
+                  <button onclick='decrementQuantity(${j})'>-</button>
+                  <span>${quantity}</span>
+                  <button onclick='incrementQuantity(${j})'>+</button>
+                </div>
                 <i class='fa-solid fa-trash' onclick='delElement(${j++})'></i>
             </div>`;
       })
       .join('');
+    updateCartTotal();
   }
+}
+
+function updateCartTotal() {
+  document.getElementById('total').innerHTML = 'MAD ' + total + '.00';
+}
+
+function incrementQuantity(index) {
+  cart[index].quantity++;
+  displayCart();
+}
+
+function decrementQuantity(index) {
+  if (cart[index].quantity > 1) {
+    cart[index].quantity--;
+  }
+  displayCart();
+}
+function animateHeart(button) {
+  button.classList.add('heart-animation');
 }
